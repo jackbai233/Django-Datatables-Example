@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DataTables示例</title>
+    <!--本页面展示datatables的最基本用法-->
+    <link href="{% static 'example/css/jquery.dataTables.min.css' %}" rel="stylesheet">
+{#    也可以用如下代替#}
+{#    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">#}
+</head>
+<body>
+<table id="basic-table" class="table table-hover" width="100%">
+    <thead>
+        <tr>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>年龄</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script src="{% static 'example/js/jquery-3.3.1.js' %}"></script>
+<script src="{% static 'example/js/jquery.dataTables.min.js' %}"></script>
+{#<script src="https://code.jquery.com/jquery-3.3.1.js"></script>#}
+{#<script stc="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>#}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#basic-table").DataTable({
+            // 表下方页脚的类型，具体类别比较到，见[官网](https://datatables.net/examples/basic_init/alt_pagination.html)
+            "pagingType": "simple_numbers",
+            //启动搜索框
+            searching: true,
+            destroy : true,
+            // 保存刷新时原表的状态
+            stateSave: true,
+            // 将显示的语言初始化为中文
+            "language": {
+                "lengthMenu": "选择每页 _MENU_ 展示 ",
+                "zeroRecords": "未找到匹配结果--抱歉",
+                "info": "当前显示第 _PAGE_ 页结果，共 _PAGES_ 页",
+                "infoEmpty": "没有数据",
+                "infoFiltered": "(获取 _MAX_ 项结果)",
+                "paginate": {
+                    "first": "首页",
+                    "previous": "上一页",
+                    "next": "下一页",
+                    "last": "末页"
+                }
+            },
+            // 此处重要，该data就是dataTables要展示的数据.users即为后台传递过来的数据
+            data: {{ users | safe }},
+            columns: [
+                {
+                    data: null,
+                    width: "1%",
+                    // 若想前端显示的不一样，则需要"render"函数
+                    'render': function (data, type, full, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    }
+                },
+                {
+                    data: "name",
+                    'render': function (data, type, full, meta) {
+                        return '<a class="text-warning" style="color:#007bff" title="年龄为'+ full.age +'">'+ data +'</a>';
+                    }
+                },
+                {data: 'age'}
+            ]
+        })
+    });
+
+</script>
+
+</body>
+</html>

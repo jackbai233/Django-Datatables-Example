@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DataTables示例</title>
+    <!--本页面展示datatables的最基本用法-->
+    <link href="{% static 'example/css/jquery.dataTables.min.css' %}" rel="stylesheet">
+{#    也可以用如下代替#}
+{#    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">#}
+</head>
+<body>
+<table id="ajax-table" class="table table-hover" width="100%">
+    <thead>
+        <tr>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>年龄</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script src="{% static 'example/js/jquery-3.3.1.js' %}"></script>
+<script src="{% static 'example/js/jquery.dataTables.min.js' %}"></script>
+{#<script src="https://code.jquery.com/jquery-3.3.1.js"></script>#}
+{#<script stc="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>#}
+<script type="text/javascript">
+    $(document).ready(function () {
+        //django post请求需要加认证，不能忘了
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' }
+        });
+
+        var table = $('#ajax-table').DataTable({
+            "pagingType": "full_numbers",
+            // 跟基本使用对比，已经没有data属性，而是多了"ajax"
+            "ajax":{
+                "processing": true,
+                // ajax请求的网址
+                "url": "{% url 'example:request_ajax' %}",
+                "type": 'POST',
+                "data": {
+                    // 前端向后端传递的数据age,比如只查询年龄在22岁的人员
+                    "age": 22
+                },
+                //
+                "dataSrc": ""
+            },
+            // ajax请求成功传递回来后数据的展示
+            columns: [
+               {
+                    data: null,
+                    width: "1%",
+                    // 若想前端显示的不一样，则需要"render"函数
+                    'render': function (data, type, full, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    }
+                },
+                {
+                    data: "name",
+                    'render': function (data, type, full, meta) {
+                        return '<a class="text-warning" style="color:#007bff" title="年龄为'+ full.age +'">'+ data +'</a>';
+                    }
+                },
+                {data: 'age'}
+            ],
+            "language": {
+                "processing": "正在获取数据，请稍后...",
+                "lengthMenu": "选择每页 _MENU_ 展示 ",
+                "zeroRecords": "未找到匹配结果--抱歉",
+                "info": "当前显示第 _PAGE_ 页结果，共 _PAGES_ 页, 共 _TOTAL_ 条记录",
+                "infoEmpty": "没有数据",
+                "infoFiltered": "(获取 _MAX_ 项结果)",
+                "sLoadingRecords": "载入中...",
+                "paginate": {
+                    "first": "首页",
+                    "previous": "上一页",
+                    "next": "下一页",
+                    "last": "末页"
+                }
+            }
+        } );
+    });
+
+</script>
+
+</body>
+</html>
